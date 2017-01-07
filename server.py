@@ -38,29 +38,51 @@ class Client():
 client1 = Client()
 client2 = Client()
 client3 = Client()
-client4 = Client()
+# client4 = Client()
 
 
+import time
+t_start = time.time()
+notification = True
+sw = False
 while True:
+    if notification and time.time() - t_start > 4:
+        notification = False
+        print('GOWWWWNO\n' * 60 )
+        sw = True
+
 
     request1 = client1.c_request.recv(CHUNK)
     request2 = client2.c_request.recv(CHUNK)
     request3 = client3.c_request.recv(CHUNK)
-    request4 = client4.c_request.recv(CHUNK)
+    # request4 = client4.c_request.recv(CHUNK)
     print(str(request1,'ascii'))
     print(str(request2,'ascii'))
     print(str(request3,'ascii'))
-    print(str(request4,'ascii'))
+    # print(str(request4,'ascii'))
 
-    client1.c_command.sendall(bytes('broadcast', 'ascii'))
-    client2.c_command.sendall(bytes('listen', 'ascii'))
-    client3.c_command.sendall(bytes('listen', 'ascii'))
-    client4.c_command.sendall(bytes('listen', 'ascii'))
 
-    audio_data = client1.c_broadcast.recv(CHUNK)
-    client2.c_listen.sendall(audio_data)
-    client3.c_listen.sendall(audio_data)
-    client4.c_listen.sendall(audio_data)
+    if not sw:
+        client1.c_command.sendall(bytes('broadcast', 'ascii'))
+        client2.c_command.sendall(bytes('listen', 'ascii'))
+        client3.c_command.sendall(bytes('listen', 'ascii'))
+        # client4.c_command.sendall(bytes('listen', 'ascii'))
 
+
+        audio_data = client1.c_broadcast.recv(CHUNK)
+        client2.c_listen.sendall(audio_data)
+        client3.c_listen.sendall(audio_data)
+        # client4.c_listen.sendall(audio_data)
+    else:
+        client1.c_command.sendall(bytes('listen', 'ascii'))
+        client2.c_command.sendall(bytes('broadcast', 'ascii'))
+        client3.c_command.sendall(bytes('listen', 'ascii'))
+        # client4.c_command.sendall(bytes('listen', 'ascii'))
+
+
+        audio_data = client2.c_broadcast.recv(CHUNK)
+        client1.c_listen.sendall(audio_data)
+        client3.c_listen.sendall(audio_data)
+        # client4.c_listen.sendall(audio_data)
 
 s.close()

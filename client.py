@@ -43,7 +43,7 @@ while True:
         audio_data = wf.readframes(AUDIOCHUNK)
         s_broadcast.sendall(audio_data)
     elif str(command,'ascii') == "listen":
-        audio_data = s_listen.recv(CHUNK)
-        stream.write(audio_data)
+        audio_data = s_listen.recv(CHUNK)[:]
+        # stream.write(audio_data)
     else:
         print('sth unexpected happend')
