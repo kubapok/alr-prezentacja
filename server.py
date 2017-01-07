@@ -24,36 +24,43 @@ s.listen(10)
 print('Socket now listening')
 
 
+class Client():
+    all = list()
+    def __init__(self,):
+        self.c_request, self.addr_request = s.accept()
+        self.c_command, self.addr_command = s.accept()
+        self.c_broadcast, self.addr_broadcast = s.accept()
+        self.c_listen, self.addr_listen = s.accept()
+        Client.all.append(self)
 
-cli1 = list()
-for i in range(4):
-    conn, addr = s.accept()
-    print('Connected with ' + addr[0] + ':' + str(addr[1]))
-    cli1.append(conn)
 
 
-cli2 = list()
-for i in range(4):
-    conn, addr = s.accept()
-    print('Connected with ' + addr[0] + ':' + str(addr[1]))
-    cli2.append(conn)
-
+client1 = Client()
+client2 = Client()
+client3 = Client()
+client4 = Client()
 
 
 while True:
-    request1 = cli1[0].recv(CHUNK)
-    request2 = cli2[0].recv(CHUNK)
+
+    request1 = client1.c_request.recv(CHUNK)
+    request2 = client2.c_request.recv(CHUNK)
+    request3 = client3.c_request.recv(CHUNK)
+    request4 = client4.c_request.recv(CHUNK)
     print(str(request1,'ascii'))
     print(str(request2,'ascii'))
+    print(str(request3,'ascii'))
+    print(str(request4,'ascii'))
 
-    cli1[1].sendall(bytes('broadcast', 'ascii'))
-    cli2[1].sendall(bytes('listen', 'ascii'))
+    client1.c_command.sendall(bytes('broadcast', 'ascii'))
+    client2.c_command.sendall(bytes('listen', 'ascii'))
+    client3.c_command.sendall(bytes('listen', 'ascii'))
+    client4.c_command.sendall(bytes('listen', 'ascii'))
 
-    audio_data = cli1[2].recv(CHUNK)
-    cli2[3].send(audio_data)
-
-
-
+    audio_data = client1.c_broadcast.recv(CHUNK)
+    client2.c_listen.sendall(audio_data)
+    client3.c_listen.sendall(audio_data)
+    client4.c_listen.sendall(audio_data)
 
 
 s.close()

@@ -8,7 +8,6 @@ PORT = int(sys.argv[1])
 CHUNK =  50000
 AUDIOCHUNK = 3000
 
-
 FORMAT = 8
 CHANNELS = 2
 RATE = 44100
@@ -34,6 +33,7 @@ p = pyaudio.PyAudio()
 stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 wf = wave.open(music_file, 'rb')
 
+
 while True:
     s_request.sendall(bytes('listen','ascii'))
     command = s_command.recv(CHUNK)
@@ -42,7 +42,8 @@ while True:
     if str(command,'ascii') == "broadcast":
         audio_data = wf.readframes(AUDIOCHUNK)
         s_broadcast.sendall(audio_data)
-
-    else:
+    elif str(command,'ascii') == "listen":
         audio_data = s_listen.recv(CHUNK)
         stream.write(audio_data)
+    else:
+        print('sth unexpected happend')
