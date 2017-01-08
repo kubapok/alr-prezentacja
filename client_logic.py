@@ -17,8 +17,6 @@ OUTPUT = True
 
 music_file  = "The Principle Of Moments.wav"
 
-is_broadcasting = None
-
 s_request = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s_request.connect(('localhost', PORT))
 
@@ -36,11 +34,10 @@ wf = wave.open(music_file, 'rb')
 p = pyaudio.PyAudio()
 stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 
-
-def action(request):
-    s_request.sendall(bytes('listen','ascii'))
+def action(request_state):
+    s_request.sendall(bytes(request_state,'ascii'))
     command = str(s_command.recv(CHUNK),'ascii')
-    print(command)
+    print('I have to', command)
 
     if command == "broadcast":
         audio_data = wf.readframes(AUDIOCHUNK)
@@ -50,5 +47,5 @@ def action(request):
         stream.write(audio_data)
     else:
         print('sth unexpected happend')
-        
+        assert False
     return command
