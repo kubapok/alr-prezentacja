@@ -30,25 +30,16 @@ s_broadcast.connect(('localhost', PORT))
 s_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s_listen.connect(('localhost', PORT))
 
-# import fcntl, os
-# fcntl.fcntl(s_request, fcntl.F_SETFL, os.O_NONBLOCK)
-# fcntl.fcntl(s_command, fcntl.F_SETFL, os.O_NONBLOCK)
-# fcntl.fcntl(s_broadcast, fcntl.F_SETFL, os.O_NONBLOCK)
-# fcntl.fcntl(s_listen, fcntl.F_SETFL, os.O_NONBLOCK)
 
-if sys.argv[2] == 'broadcast':
-    wf = wave.open(music_file, 'rb')
-    print('broadcast')
-else:
-    print('listen')
-    p = pyaudio.PyAudio()
-    stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
+wf = wave.open(music_file, 'rb')
+
+p = pyaudio.PyAudio()
+stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 
 
 while True:
     s_request.sendall(bytes('listen','ascii'))
     command = s_command.recv(CHUNK)
-    #print(str(command,'ascii'))
 
     if str(command,'ascii') == "broadcast":
         audio_data = wf.readframes(AUDIOCHUNK)
