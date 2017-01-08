@@ -37,6 +37,7 @@ stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 def action(request_state):
     s_request.sendall(bytes(request_state,'ascii'))
     command = str(s_command.recv(CHUNK),'ascii')
+    print('command received: ', command)
     print('I have to', command)
 
     if command == "broadcast":
@@ -46,6 +47,5 @@ def action(request_state):
         audio_data = s_listen.recv(CHUNK)
         stream.write(audio_data)
     else:
-        print('sth unexpected happend')
-        assert False
+        command = 'quit'
     return command

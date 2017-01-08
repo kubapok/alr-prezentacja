@@ -30,7 +30,7 @@ class Application(tk.Frame):
 
 
     def quit_request(self):
-        pass
+        self.request_state = 'quit'
 
     def change_state_request(self,):
         print('AAAAAAA\n'*20)
@@ -69,6 +69,8 @@ import client_logic
 while True:
     print('I want to ', app.request_state)
     command = client_logic.action(app.request_state)
+    if command == 'quit':
+        break
     app.request_state = command
     app.state = command
     app.set_state(command)

@@ -6,7 +6,7 @@ import time
 HOST = ''
 PORT = int(sys.argv[1])
 CHUNK =  50000
-CLIENTQUANTITY = 2
+CLIENTQUANTITY = 4
 
 
 
@@ -16,7 +16,7 @@ print('Socket created')
 try:
     s.bind((HOST, PORT))
 except socket.error as msg:
-    print('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+    print('port already in use')
     sys.exit()
 
 print('Socket bind complete')
@@ -74,21 +74,29 @@ class Client():
         print('no alive other users to broadcast')
         assert False
 
+
+    def closeAllConnections(self,):
+        self.c_request.close()
+        self.c_command.close()
+        self.c_broadcast.close()
+        self.c_listen.close()
+
     def setCommands():
         for client in Client.all:
             if client.isAlive:
                 if client.command == 'listen' and client.request == 'quit':
-                    if Client.aliveQuantity > 2:
+                    if Client.aliveQuantity() > 2:
                         client.isAlive = False
-                        #CLOSE ALL CONNECTIONS
+                        client.closeAllConnections()
                         return False
                     else:
                         return True
                 if client.command == 'broadcast' and client.request == 'quit':
-                    if Client.aliveQuantity > 2:
+                    if Client.aliveQuantity() > 2:
+                        client.isAlive = False
                         Client.SetFirstAliveWithOtherIdToBroadcast(-1)
                         client.command = 'listen'
-                        client.isAlive = False
+                        client.closeAllConnections()
                         return False
                     else:
                         return True
@@ -123,7 +131,9 @@ Client.connectClients()
 while True:
     Client.receiveRequests()
     server_close = Client.setCommands()
-
+    if server_close == True:
+        print('ending, because less than two clients')
+        break
     for c in Client.all:
         print(c.command)
     Client.sendCommands()
