@@ -1,51 +1,52 @@
+import tkinter as tk
 
-import socket
-import sys
-import pyaudio
-import wave
+state = 'broadcasting'
+b_string = 'BROADCASTING NOW \n click to listen'
+l_string = '  LISTENING NOW  \nclick to broadcast'
 
-
-PORT = int(sys.argv[1])
-CHUNK =  12000
-AUDIOCHUNK = 3000
-
-FORMAT = 8
-CHANNELS = 2
-RATE = 44100
-OUTPUT = True
-
-music_file  = "The Principle Of Moments.wav"
-
-is_broadcasting = None
-
-s_request = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_request.connect(('localhost', PORT))
-
-s_command = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_command.connect(('localhost', PORT))
-
-s_broadcast = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_broadcast.connect(('localhost', PORT))
-
-s_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_listen.connect(('localhost', PORT))
+import client_logic
 
 
-wf = wave.open(music_file, 'rb')
-p = pyaudio.PyAudio()
-stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.state_button = tk.Button(self)
+        self.state_button["text"] = state
+        self.state_button["command"] = self.change_state
+        self.state_button.pack(side="top")
+        self.state_button["height"] = 3
+        self.state_button["width"] = 20
+        self.state_button["bg"] = 'red'
+
+
+        self.quit = tk.Button(self, text="QUIT", bg="brown4",
+                              command=root.destroy)
+        self.quit.pack(side="bottom")
+
+    def change_state(self):
+        global state
+        if state == 'broadcasting':
+            state = 'listening'
+            self.state_button["text"] = l_string
+            self.state_button["bg"] = 'forest green'
+            self.state_button["activebackground"]= 'green yellow'
+        else:
+            state = 'broadcasting'
+            self.state_button["text"] = b_string
+            self.state_button["bg"] = 'red'
+            self.state_button["activebackground"]= 'IndianRed1'
+
+root = tk.Tk()
+root.minsize(width=300, height=300)
+root.maxsize(width=300, height=300)
+app = Application(master=root)
 
 
 while True:
-    s_request.sendall(bytes('listen','ascii'))
-    command = str(s_command.recv(CHUNK),'ascii')
-    print(command)
-
-    if command == "broadcast":
-        audio_data = wf.readframes(AUDIOCHUNK)
-        s_broadcast.sendall(audio_data)
-    elif command == "listen":
-        audio_data = s_listen.recv(CHUNK)
-        stream.write(audio_data)
-    else:
-        print('sth unexpected happend')
+    client_logic.action('listen')
+    app.update_idletasks()
+    app.update()
