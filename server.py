@@ -6,7 +6,7 @@ import time
 HOST = ''
 PORT = int(sys.argv[1])
 CHUNK =  50000
-CLIENTQUANTITY = 4
+CLIENTQUANTITY = 2
 
 
 
@@ -45,6 +45,8 @@ class Client():
         print('setting to', self.command)
         self.isAlive = True
 
+    def aliveQuantity():
+        return len([c for c in Client.all if c.isAlive])
 
     def connectClients():
         for i in range(CLIENTQUANTITY):
@@ -59,7 +61,8 @@ class Client():
 
     def setEveryClientToListen():
         for client in Client.all:
-            client.command = 'listen'
+            if client.isAlive:
+                client.command = 'listen'
             #print('setting every client to liste triggered, setting to :', client.command)
 
 
@@ -72,20 +75,32 @@ class Client():
         assert False
 
     def setCommands():
-        # pass
-        #Client.all[0].command = 'broadcast'
-        #Client.all[1].command = 'listen'
         for client in Client.all:
             if client.isAlive:
+                if client.command == 'listen' and client.request == 'quit':
+                    if Client.aliveQuantity > 2:
+                        client.isAlive = False
+                        #CLOSE ALL CONNECTIONS
+                        return False
+                    else:
+                        return True
+                if client.command == 'broadcast' and client.request == 'quit':
+                    if Client.aliveQuantity > 2:
+                        Client.SetFirstAliveWithOtherIdToBroadcast(-1)
+                        client.command = 'listen'
+                        client.isAlive = False
+                        return False
+                    else:
+                        return True
                 if client.command == 'listen' and client.request == 'broadcast':
                     Client.setEveryClientToListen()
                     client.command = 'broadcast'
-                    return
+                    return False
                 if client.command == 'broadcast' and client.request == 'listen':
                     Client.setEveryClientToListen()
                     Client.SetFirstAliveWithOtherIdToBroadcast(client.id)
-                    return
-
+                    return False
+        return False
     def sendCommands():
         for client in Client.all:
             if client.isAlive:
@@ -107,11 +122,12 @@ class Client():
 Client.connectClients()
 while True:
     Client.receiveRequests()
-    Client.setCommands()
+    server_close = Client.setCommands()
+
     for c in Client.all:
         print(c.command)
     Client.sendCommands()
     Client.recvAudio()
     Client.sendAudio()
-
+    print(Client.aliveQuantity())
 s.close()

@@ -22,9 +22,15 @@ class Application(tk.Frame):
         self.state_button["bg"] = 'red'
 
 
-        self.quit = tk.Button(self, text="QUIT", bg="brown4",
-                              command=root.destroy)
-        self.quit.pack(side="bottom")
+        self.quit_button = tk.Button(self)
+        self.quit_button["text"] = 'quit'
+        self.quit_button["bg"] = "brown4"
+        self.quit_button["command"] = self.quit_request
+        self.quit_button.pack(side="bottom")
+
+
+    def quit_request(self):
+        pass
 
     def change_state_request(self,):
         print('AAAAAAA\n'*20)
@@ -50,6 +56,7 @@ class Application(tk.Frame):
             self.state_button["activebackground"]= 'IndianRed1'
         else:
             print('sth bad happend')
+            print('QUITTING')
             assert False
 
 root = tk.Tk()
