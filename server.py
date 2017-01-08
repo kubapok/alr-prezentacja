@@ -66,7 +66,6 @@ class Client():
     def sendAudio():
         for client in Client.all:
             if client.isAlive and client.command == 'listen':
-                print('sending audio now')
                 client.c_listen.sendall(Client.audio_data)
 
 
@@ -75,13 +74,7 @@ while True:
     Client.receiveRequests()
     Client.setCommands()
     Client.sendCommands()
-    print('command sent')
     Client.recvAudio()
-    print('audio receinved')
-    print(Client.audio_data[0:10])
-    print(len(Client.audio_data))
-    print('i am going to send audio')
     Client.sendAudio()
-    print('audio sent')
 
 s.close()

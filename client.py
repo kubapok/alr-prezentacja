@@ -32,24 +32,20 @@ s_listen.connect(('localhost', PORT))
 
 
 wf = wave.open(music_file, 'rb')
-
 p = pyaudio.PyAudio()
 stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 
 
 while True:
     s_request.sendall(bytes('listen','ascii'))
-    command = s_command.recv(CHUNK)
+    command = str(s_command.recv(CHUNK),'ascii')
+    print(command)
 
-    if str(command,'ascii') == "broadcast":
+    if command == "broadcast":
         audio_data = wf.readframes(AUDIOCHUNK)
         s_broadcast.sendall(audio_data)
-        print(audio_data[0:10])
-        print(len(audio_data))
-    elif str(command,'ascii') == "listen":
+    elif command == "listen":
         audio_data = s_listen.recv(CHUNK)
-        print(audio_data[0:10])
-        print(len(audio_data))
         stream.write(audio_data)
     else:
         print('sth unexpected happend')
