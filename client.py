@@ -16,7 +16,7 @@ class Application(tk.Frame):
     def create_widgets(self):
         self.state_button = tk.Button(self)
         self.state_button["text"] = state
-        self.state_button["command"] = self.change_state
+        self.state_button["command"] = None#self.change_state
         self.state_button.pack(side="top")
         self.state_button["height"] = 3
         self.state_button["width"] = 20
@@ -27,18 +27,18 @@ class Application(tk.Frame):
                               command=root.destroy)
         self.quit.pack(side="bottom")
 
-    def change_state(self):
-        global state
-        if state == 'broadcasting':
-            state = 'listening'
-            self.state_button["text"] = l_string
+    def change_state(self, command):
+        state = command
+        if state == 'listen':
+            self.state_button["text"] = '  LISTENING NOW  \nclick to broadcast'
             self.state_button["bg"] = 'forest green'
             self.state_button["activebackground"]= 'green yellow'
-        else:
-            state = 'broadcasting'
-            self.state_button["text"] = b_string
+        elif state == 'broadcast':
+            self.state_button["text"] = b_string = 'BROADCASTING NOW \n click to listen'
             self.state_button["bg"] = 'red'
             self.state_button["activebackground"]= 'IndianRed1'
+        else:
+            print('sth bad happend')
 
 root = tk.Tk()
 root.minsize(width=300, height=300)
@@ -47,6 +47,7 @@ app = Application(master=root)
 
 
 while True:
-    client_logic.action('listen')
+    command = client_logic.action('listen')
+    app.change_state(command)
     app.update_idletasks()
     app.update()
