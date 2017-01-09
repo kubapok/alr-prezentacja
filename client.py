@@ -33,13 +33,11 @@ class Application(tk.Frame):
         self.request_state = 'quit'
 
     def change_state_request(self,):
-        print('AAAAAAA\n'*20)
         if self.state == 'listen':
             self.request_state = 'broadcast'
         elif self.state == 'broadcast':
             self.request_state = 'listen'
         else:
-            print(self.request_state)
             assert False
 
 
@@ -67,9 +65,9 @@ app = Application(master=root)
 
 import client_logic
 while True:
-    print('I want to ', app.request_state)
     command = client_logic.action(app.request_state)
     if command == 'quit':
+        print('quitting')
         break
     app.request_state = command
     app.state = command

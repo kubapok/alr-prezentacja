@@ -5,8 +5,8 @@ import pyaudio
 import wave
 import os
 import datetime
+from config import HOST, PORT
 
-PORT = 9995
 CHUNK =  12000
 AUDIOCHUNK = 3000
 
@@ -17,17 +17,22 @@ OUTPUT = True
 
 music_file  = "The Principle Of Moments.wav"
 
+
+_stderr = sys.stderr
+null = open(os.devnull,'wb')
+sys.stderr = _stderr
+
 s_request = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_request.connect(('localhost', PORT))
+s_request.connect((HOST, PORT))
 
 s_command = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_command.connect(('localhost', PORT))
+s_command.connect((HOST, PORT))
 
 s_broadcast = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_broadcast.connect(('localhost', PORT))
+s_broadcast.connect((HOST, PORT))
 
 s_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s_listen.connect(('localhost', PORT))
+s_listen.connect((HOST, PORT))
 
 
 wf = wave.open(music_file, 'rb')
@@ -35,29 +40,26 @@ p = pyaudio.PyAudio()
 stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 
 
-dir_list = os.listdir()
-for i in range(1,20):
-    if not str(i) in dir_list:
-        log_file = open(str(i), 'w+')
-        log_id = str(i)
-        break
 
 
 def action(request_state):
     s_request.sendall(bytes(request_state,'ascii'))
     command = str(s_command.recv(CHUNK),'ascii')
-    print('command received: ', command)
-    print('I have to', command)
-
 
     if command == "broadcast":
-        log_file.write(str(datetime.datetime.now())[-15:]+'-'+log_id+ '-broadcasting\n')
         audio_data = wf.readframes(AUDIOCHUNK)
         s_broadcast.sendall(audio_data)
     elif command == "listen":
-        log_file.write(str(datetime.datetime.now())[-15:]+'-'+log_id+ '-listening\n')
         audio_data = s_listen.recv(CHUNK)
         stream.write(audio_data)
     else:
         command = 'quit'
+        s_request.close()
+        s_command.close()
+        s_broadcast.close()
+        s_listen.close()
+
+    print('my request is to ', request_state)
+    print('my command is to ', command)
+    print('-'*20)
     return command

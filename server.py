@@ -3,17 +3,14 @@ import socket
 import sys
 import time
 import os
+import datetime
+from config import HOST, PORT, CLIENTQUANTITY
+
 
 HOST = ''
-PORT = int(sys.argv[1])
 CHUNK =  50000
-CLIENTQUANTITY = 4
 
 
-dir_list = os.listdir()
-for i in range(1,20):
-    if  str(i) in dir_list:
-        os.remove(str(i))
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket created')
@@ -47,7 +44,7 @@ class Client():
         else:
             self.command = 'listen'
 
-        print('setting to', self.command)
+        print('setting ' + str(self.id) +  ' to ' + str(self.command))
         self.isAlive = True
 
     def aliveQuantity():
@@ -68,7 +65,6 @@ class Client():
         for client in Client.all:
             if client.isAlive:
                 client.command = 'listen'
-            #print('setting every client to liste triggered, setting to :', client.command)
 
 
     def SetFirstAliveWithOtherIdToBroadcast(id):
@@ -124,25 +120,34 @@ class Client():
         for client in Client.all:
             if client.isAlive and client.command == 'broadcast':
                 Client.audio_data = client.c_broadcast.recv(CHUNK)
+                global log
+                log.write(str(client.id) + ' broadcasting\n')
                 break
 
     def sendAudio():
         for client in Client.all:
             if client.isAlive and client.command == 'listen':
                 client.c_listen.sendall(Client.audio_data)
+                log.write(str(client.id) + ' listening\n')
+if 'log' in os.listdir():
+    os.remove('log')
 
-
+log = open('log','w+')
 Client.connectClients()
 while True:
     Client.receiveRequests()
     server_close = Client.setCommands()
     if server_close == True:
-        print('ending, because less than two clients')
+        print('quitting, because less than two clients')
         break
     for c in Client.all:
-        print(c.command)
+        if c.isAlive:
+            print(str(c.id) + ' set to ' + str(c.command))
+
+    log.write(str(datetime.datetime.now())[-15:] + '\n')
     Client.sendCommands()
     Client.recvAudio()
     Client.sendAudio()
-    print(Client.aliveQuantity())
+    print('-'*10)
+    log.write('-'*40+'\n')
 s.close()
