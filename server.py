@@ -2,6 +2,7 @@
 import socket
 import sys
 import time
+import os
 
 HOST = ''
 PORT = int(sys.argv[1])
@@ -9,6 +10,10 @@ CHUNK =  50000
 CLIENTQUANTITY = 4
 
 
+dir_list = os.listdir()
+for i in range(1,20):
+    if  str(i) in dir_list:
+        os.remove(str(i))
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket created')
