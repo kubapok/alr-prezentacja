@@ -5,7 +5,7 @@ import pyaudio
 import wave
 import os
 import datetime
-from config import HOST, PORT
+from config import HOST, PORT, PLAY_AUDIO
 
 CHUNK =  12000
 AUDIOCHUNK = 3000
@@ -36,8 +36,10 @@ s_listen.connect((HOST, PORT))
 
 
 wf = wave.open(music_file, 'rb')
-p = pyaudio.PyAudio()
-stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
+
+if PLAY_AUDIO:
+    p = pyaudio.PyAudio()
+    stream = p.open(format=FORMAT,channels=CHANNELS,rate=RATE,output=OUTPUT)
 
 
 
@@ -51,7 +53,8 @@ def action(request_state):
         s_broadcast.sendall(audio_data)
     elif command == "listen":
         audio_data = s_listen.recv(CHUNK)
-        stream.write(audio_data)
+        if PLAY_AUDIO:
+            stream.write(audio_data)
     else:
         command = 'quit'
         s_request.close()

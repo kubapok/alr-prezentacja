@@ -1,0 +1,4 @@
+HOST = 'localhost'
+PORT = 9992
+CLIENTQUANTITY = 4
+PLAY_AUDIO = True
