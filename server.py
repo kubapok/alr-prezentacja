@@ -135,8 +135,10 @@ if 'log' in os.listdir():
 log = open('log','w+')
 Client.connectClients()
 while True:
-    Client.receiveRequests()
-    server_close = Client.setCommands()
+    Client.receiveRequests()  # serwer odbiera od WSZYSTKICH klientów request
+    server_close = Client.setCommands()   #serwer ustatala jaki klient nadaje a jaki słucha
+    #tak że koniecznie musi być jeden nadajacy, jeżeli jest tylko dwóch klientów
+    #i jeden chce się wyłączyć to metoda zwraca informację, żę serwer ma się wyłączyć
     if server_close == True:
         print('quitting, because less than two clients')
         break
@@ -145,9 +147,11 @@ while True:
             print(str(c.id) + ' set to ' + str(c.command))
 
     log.write(str(datetime.datetime.now())[-15:] + '\n')
-    Client.sendCommands()
-    Client.recvAudio()
-    Client.sendAudio()
+    Client.sendCommands()   #serwer wysyła polecenia do klientów
+    Client.recvAudio()      #serwer odbiera polecenia od klienta nadającego, tutaj w razie opóźnień
+                            #będzie czekał tak długo aż nie dostanie danych
+
+    Client.sendAudio()      #serwer wysyła audio do  klientów słuchających
     print('-'*10)
     log.write('-'*40+'\n')
 s.close()
